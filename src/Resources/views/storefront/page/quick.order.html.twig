@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <h1>Quick Order</h1>
+
+    <form action="{{ path('frontend.quickorder.to-cart') }}" method="post">
+        {{ sw_csrf('frontend.quickorder.to-cart') }}
+
+        {% for i in 0..10 %} <!-- TODO:: the amount can be an admin option -->
+
+            <div class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="product" class="form-label mx-sm-3">Product</label>
+                    <input type="text" class="form-control" id="product" maxlength="64"
+                           name="products[{{ i }}][number]"><br><br>
+                </div>
+
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="quantity" class="form-label mx-sm-3 ">Quantity</label>
+                    <input type="number" class="form-control" id="quantity"
+                           name="products[{{ i }}][quantity]"><br><br>
+                </div>
+            </div>
+
+        {% endfor %}
+        <input type="submit" class="btn-primary" value="Add to cart">
+    </form>
+{% endblock %}
