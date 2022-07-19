@@ -1,4 +1,4 @@
-# Shopware Quick Order Plugin
+# Shopware 6 Quick Order Plugin
 A simple plugin to add multiple items with desired quantities to the cart at once.
 
 ## Installation
