@@ -3,9 +3,16 @@ A simple plugin to add multiple items with desired quantities to the cart at onc
 
 ## Installation
 
-    1. Clone this repository into /src/custom/plugins folder
-    2. cd into your src directory
-    3. Run `php bin/console plugin:refresh`
-    3. Run `php bin/console plugin:install --activate MFQuickOrder`
-    4. Run `php bin/console cache:clear`
-    5. Lastly visit `/quick-order` route in your browser and you should be able to see the quick order form
+* Clone this repository into /src/custom/plugins folder
+* cd into your src directory
+* Run the following commands in order
+```bash 
+php bin/console plugin:refresh
+```
+```bash 
+php bin/console plugin:install --activate MFQuickOrder
+```
+```bash 
+php bin/console cache:clear
+```
+* Lastly, visit `/quick-order` route in your browser and you should be able to see the quick order form.
