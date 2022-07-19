@@ -16,3 +16,4 @@ php bin/console plugin:install --activate MFQuickOrder
 php bin/console cache:clear
 ```
 * Lastly, visit `/quick-order` route in your browser and you should be able to see the quick order form.
+  * If you can't see the quick order page, clear caches at `/admin#/sw/settings/cache/index`.
