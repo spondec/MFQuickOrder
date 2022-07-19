@@ -5,12 +5,27 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
+        <!-- CONTROLLERS -->
+
         <service id="MF\QuickOrder\Storefront\Controller\QuickOrderController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="MF\QuickOrder\Service\QuickOrderService"/>
+        </service>
+
+        <!-- CONTROLLERS -->
+
+
+        <!-- SERVICES -->
+
+        <service id="MF\QuickOrder\Service\QuickOrderService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
+
+        <!-- SERVICES -->
+
     </services>
 </container>

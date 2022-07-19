@@ -2,17 +2,10 @@
 
 namespace MF\QuickOrder\Storefront\Controller;
 
+use MF\QuickOrder\Service\QuickOrderService;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -25,13 +18,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class QuickOrderController extends StorefrontController
 {
-    protected LineItemFactoryRegistry $lineItemFactoryRegistry;
-    protected CartService $cartService;
+    protected QuickOrderService $quickOrderService;
 
-    public function __construct(LineItemFactoryRegistry $lineItemFactoryRegistry, CartService $cartService)
+    public function __construct(QuickOrderService $quickOrderService)
     {
-        $this->lineItemFactoryRegistry = $lineItemFactoryRegistry;
-        $this->cartService = $cartService;
+        $this->quickOrderService = $quickOrderService;
     }
 
     /**
@@ -52,30 +43,28 @@ class QuickOrderController extends StorefrontController
         SalesChannelContext $salesContext
     ): Response
     {
+        /** @var EntityRepository $productRepo */
+        $productRepo = $this->container->get('product.repository');
         $productQuantityMap = $this->getProductQuantityMap($request);
-        $activeProducts = $this->getActiveProducts($productQuantityMap, $context);
 
-        $lineItems = $this->prepareLineItems($activeProducts, $productQuantityMap, $salesContext);
+        $activeProducts = $this->quickOrderService->getActiveProducts(
+            $productRepo,
+            array_keys($productQuantityMap),
+            $context
+        );
 
-        $this->cartService->add($cart, $lineItems, $salesContext);
+        $lineItems = $this->quickOrderService->prepareLineItems(
+            $activeProducts,
+            $productQuantityMap,
+            $salesContext
+        );
+
+        $this->quickOrderService->addToCart($cart, $lineItems, $salesContext);
 
         return $this->redirectToRoute('frontend.checkout.cart.page');
     }
 
-    public function getActiveProducts(array $productQuantityMap, Context $context): ProductCollection
-    {
-        /** @var EntityRepository $productRepo */
-        $productRepo = $this->container->get('product.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new EqualsAnyFilter('productNumber', array_keys($productQuantityMap)));
-
-        /** @var ProductCollection<ProductEntity> $activeProducts */
-        $activeProducts = $productRepo->search($criteria, $context)->getEntities();
-        return $activeProducts;
-    }
-
-    public function getProductQuantityMap(Request $request): array
+    protected function getProductQuantityMap(Request $request): array
     {
         $products = $request->get('products');
         $productMap = array_filter(
@@ -85,28 +74,5 @@ class QuickOrderController extends StorefrontController
                 )
             ) ?? [];
         return $productMap;
-    }
-
-    /**
-     * @return LineItem[]
-     */
-    public function prepareLineItems(
-        ProductCollection   $products,
-        array               $productQuantityMap,
-        SalesChannelContext $salesContext
-    ): array
-    {
-        $lineItems = [];
-
-        foreach ($products as $product)
-        {
-            $lineItems[] = $this->lineItemFactoryRegistry->create([
-                'type'         => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                'referencedId' => $product->getId(),
-                'quantity'     => (int)$productQuantityMap,
-                'payload'      => []
-            ], $salesContext);
-        }
-        return $lineItems;
     }
 }
