@@ -3,8 +3,8 @@ A simple plugin to add multiple items with desired quantities to the cart at onc
 
 ## Installation
 
-* Clone this repository into /src/custom/plugins folder
-* cd into your src directory
+* Clone this repository into `/src/custom/plugins` folder
+* `cd` into your `src` directory
 * Run the following commands in order
 ```bash 
 php bin/console plugin:refresh
